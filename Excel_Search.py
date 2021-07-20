@@ -41,13 +41,14 @@ def save_to_txt(system, rf):
 
 
 def start():
-    a = [i for i in range(19031500048, 19031500063)]
-    a = a + [i for i in range(19062400033, 19062400048)] + [i for i in range(19061300001, 19061300021)]
-    a = a + [i for i in range(19070500129, 19070500154)] + [i for i in range(19070500154, 19070500179)]
-    a = a + [i for i in range(19073000001, 19073000026)] + [i for i in range(19080500255, 19080500285)]
-    a = a + [i for i in range(19081300153, 19081300193)] + [i for i in range(19040900122, 19040900132)]
-    start_path = "G:\\Production"
-    start_path2 = "G:\\Production"
+    #a = [i for i in range(19031500048, 19031500063)]
+    #a = a + [i for i in range(19062400033, 19062400048)] + [i for i in range(19061300001, 19061300021)]
+    #a = a + [i for i in range(19070500129, 19070500154)] + [i for i in range(19070500154, 19070500179)]
+    #a = a + [i for i in range(19073000001, 19073000026)] + [i for i in range(19080500255, 19080500285)]
+    #a = a + [i for i in range(19081300153, 19081300193)] + [i for i in range(19040900122, 19040900132)]
+    a = ['31A65E9']
+    start_path = "G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2019"
+    start_path2 = "G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2020"
     file_list = search_files(start_path) + search_files(start_path2)
     save_to_txt("System SN", "RF SN")
     for search in a:
@@ -59,8 +60,8 @@ def start():
 
 
 def debug():
-    a = [i for i in range(19081300155, 19081300160)] + [i for i in range(19072600032, 19072600036)] + [i for i in range(
-        19072600018, 19072600021)]
+    #a = [i for i in range(19081300155, 19081300160)] + [i for i in range(19072600032, 19072600036)] + [i for i in range(19072600018, 19072600021)]
+    a = ['31A65E9']
     start_path = "C:\\debug"
     start_path2 = "C:\\debug2"
     save_to_txt("System SN", "RF SN")
@@ -74,6 +75,6 @@ def debug():
 
 
 start()
-# debug()
+#debug()
 input('Press ENTER to exit')
 # searchFiles()
