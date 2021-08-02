@@ -1,2 +1,2 @@
 # Excel_Search-python
-search excel files for strings, and output file names to txt file, using xlrd.
+search excel files for strings or regex, and output data to csv file, using xlrd.
