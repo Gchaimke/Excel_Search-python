@@ -1,6 +1,7 @@
 import os
 import xlrd
 from xlrd import XLRDError
+import re
 
 
 def search_files(folder_path):
@@ -13,68 +14,105 @@ def search_files(folder_path):
     return my_files_list
 
 
-def find_cell(sh, searched_value):
-    for row in range(sh.nrows):
-        for col in range(sh.ncols):
-            if sh.cell_value(row, col) == str(searched_value):
-                return True
-            if sh.cell_value(row, col) == searched_value:
-                return True
+def find_in_all_cells(sh, search_list):
+    for search in search_list:
+        for row in range(sh.nrows):
+            for col in range(sh.ncols):
+                if sh.cell_value(row, col) == str(search):
+                    return True
+                if sh.cell_value(row, col) == search:
+                    return True
     return False
 
 
-def find_all(file_path, searched_value):
+def find_regex(sheet, regex_list):
+    status = False
+    for regex in regex_list:
+        re.compile(regex)
+        for row in range(sheet.nrows):
+            for col in range(sheet.ncols):
+                if re.match(regex, str(sheet.cell_value(row, col))):
+                    status = True
+                    continue
+    return status
+
+
+def find_in_spec_cell(sheet, regex, row, col):
+    re.compile(regex)
+    if sheet.nrows > row and sheet.ncols > col:
+        if re.match(regex, str(sheet.cell_value(row, col))):
+            return True
+    return False
+
+
+def find_all(file_path, search_list):
     try:
         book = xlrd.open_workbook(file_path)
         sheet = book.sheet_by_name("Sheet1")
-        if find_cell(sheet, searched_value):
+        if find_in_all_cells(sheet, search_list):
             return True
     except XLRDError:
         print("An exception occurred in " + os.path.basename(file_path)[0:-5])
     return False
 
 
-def save_to_txt(system, rf):
-    f = open("search_result.txt", "a")
-    f.write(system + "," + rf + "\n")
+def find_all_regex(file_path, searched_list):
+    try:
+        book = xlrd.open_workbook(file_path)
+        sheet = book.sheet_by_name("Sheet1")
+        if find_regex(sheet, searched_list):
+            return True
+    except XLRDError:
+        print("An exception occurred in " + os.path.basename(file_path)[0:-5])
+    return False
+
+
+def find_one(file_path, search, row, col):
+    try:
+        book = xlrd.open_workbook(file_path)
+        sheet = book.sheet_by_name("Sheet1")
+        if find_in_spec_cell(sheet, search, row, col):
+            return True
+    except XLRDError:
+        print("An exception occurred in " + os.path.basename(file_path)[0:-5])
+    return False
+
+
+def save_to_file(folder, system, status):
+    f = open("search_result.csv", "a")
+    f.write(folder + "," + system + "," + status + "\n")
     f.close()
 
 
-def start():
-    #a = [i for i in range(19031500048, 19031500063)]
-    #a = a + [i for i in range(19062400033, 19062400048)] + [i for i in range(19061300001, 19061300021)]
-    #a = a + [i for i in range(19070500129, 19070500154)] + [i for i in range(19070500154, 19070500179)]
-    #a = a + [i for i in range(19073000001, 19073000026)] + [i for i in range(19080500255, 19080500285)]
-    #a = a + [i for i in range(19081300153, 19081300193)] + [i for i in range(19040900122, 19040900132)]
-    a = ['31A65E9']
-    start_path = "G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2019"
-    start_path2 = "G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2020"
+def search_in_all_cells():
+    search_list = [r"^.*[rR].*[ -][Bb]", r"^[Bb]"]  # ['19062400033', '19070500145', '19070500148', '19070500161']
+    start_path = r"G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2019"
+    start_path2 = r"G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2020"
+    start_path3 = r"G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2021"
+    file_list = search_files(start_path) + search_files(start_path2) + search_files(start_path3)
+    save_to_file("Folder", "System SN", "Status")
+    for file in file_list:
+        print("search in " + file)
+        if find_all_regex(file, search_list):
+            save_to_file(os.path.dirname(file), os.path.basename(file)[0:-5], "1")
+        else:
+            save_to_file(os.path.dirname(file), os.path.basename(file)[0:-5], "0")
+        
+
+def search_in_one_cell(search, row, col):
+    start_path = r"G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2019"
+    start_path2 = r"G:\Advantech\# Archive\@Clients\D-FEND\Production\Production 2020"
+
     file_list = search_files(start_path) + search_files(start_path2)
-    save_to_txt("System SN", "RF SN")
-    for search in a:
-        for file in file_list:
-            print("search in " + file + " for " + str(search))
-            if find_all(file, search):
-                file_list.remove(file)
-                save_to_txt(os.path.basename(file)[0:-5], str(search))
+    save_to_file("Folder", "System SN", "Status")
+    for file in file_list:
+        print("search in " + file + " for " + str(search))
+        if find_one(file, search, row, col):
+            save_to_file(os.path.dirname(file), os.path.basename(file)[0:-5], "1")
+        else:
+            save_to_file(os.path.dirname(file), os.path.basename(file)[0:-5], "0")
 
 
-def debug():
-    #a = [i for i in range(19081300155, 19081300160)] + [i for i in range(19072600032, 19072600036)] + [i for i in range(19072600018, 19072600021)]
-    a = ['31A65E9']
-    start_path = "C:\\debug"
-    start_path2 = "C:\\debug2"
-    save_to_txt("System SN", "RF SN")
-    file_list = search_files(start_path) + search_files(start_path2)
-    for search in a:
-        for file in file_list:
-            print("search in " + file + " for " + str(search))
-            if find_all(file, search):
-                file_list.remove(file)
-                save_to_txt(os.path.basename(file)[0:-5], str(search))
-
-
-start()
-#debug()
+search_in_all_cells()
+# search_in_one_cell(r"^.*[ -]B", 1, 2)
 input('Press ENTER to exit')
-# searchFiles()
